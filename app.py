@@ -1,6 +1,10 @@
 from flask import *
 import pymysql
+from functions import*
+from mpesa import *
 app=Flask(__name__)
+# session key
+app.secret_key="2000"
 
 @app.route("/")
 def Homepage():
@@ -145,18 +149,90 @@ def uploadfashion():
 def about():
     return "this is my about page"
 
-@app.route("/register")
+@app.route("/register",methods=['POST','GET'])
 def register():
-    return "this is my registration page"
+    if request.method == 'POST':
+        # user can add the products
+        username =request.form['username']
+        email =request.form['email']
+        gender =request.form['gender']
+        phone =request.form['phone']
+        password =request.form['password']
+        
+        # # validate user password
+        # response = checkpasswordvalidity(password)
+        # if response == True:
+        #     # password met all the conditions
+
+        # else:
+        #     # password did not meet all the conditions
+        #    return render_template("register.html",message="registered successfully")
 
 
-@app.route("/login")
+         # connect to db
+        connection = pymysql.connect(host='localhost', user='root', password='', database='my_shop')
+        cursor = connection.cursor()
+
+        sql="insert into users (username,email,gender,phone,password) values (%s, %s,%s,%s,%s)"
+        data = (username,email, gender, phone, password)
+        cursor.execute(sql, data)
+
+        connection.commit()
+
+        return render_template("register.html",message="registered successfully")
+    else:
+        return render_template("register.html",error="please register")
+
+
+@app.route("/login", methods=['POST','GET'])
 def login():
-    return "this is my  login page"
+    if request.method == 'POST':
+        # user can register
+        email =request.form['email']
+        password =request.form['password']
+
+         # connect to db
+        connection = pymysql.connect(host='localhost', user='root', password='', database='my_shop')
+        cursor = connection.cursor()
+
+        # check if user with email exist in the db
+
+        sql="SELECT * FROM users WHERE email = %s AND password= %s"
+        data = (email,password)
+        cursor.execute(sql, data)
+
+       
+        # check if any result is found
+
+        if cursor.rowcount == 0:
+                # it means username and password not found
+
+            return render_template("login.html",error="invalid login credentials")
+        else:
+            session['key']= email
+            return redirect("/")
+    return render_template('login.html')
+
+#mpesa
+# implement stk push
+@app.route('/mpesa', methods = ['POST'])
+def mpesa():
+    phone = request.form["phone"]
+    amount = request.form["amount"]
+
+    # use mpesa_payment function from mpesa.py
+    # it accepts the phone and amount as arguments
+    mpesa_payment(amount, phone)
+    return '<h1> PLease complete payment in your phone<h1>'\
+    '<a href="/" class="btn.btn-dark btn-sm > Go back to products</a>'
 
 @app.route("/logout")
 def logout():
-    return "this is my  logout page"
+    session.clear()
+    return redirect("/login")
 
 if __name__== "__main__":
     app.run(debug=True,port=4000)
+
+ 
+

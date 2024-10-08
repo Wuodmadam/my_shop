@@ -39,48 +39,20 @@
             </ul>
             <form class="d-flex" role="search">
                 <input class="form-control me-2" type="search" placeholder="Search" aria-label="Search">
-                <button class="btn btn-info" type="submit">login</button>
-                <button type="button" class="btn btn-primary" data-bs-toggle="modal" data-bs-target="#exampleModal">
-                    register
-                </button>
+                <!-- check if session session['key']exists -->
+                <!-- if it exists the user should not see the login and register buttons -->
+                <!-- user is supposed to see their email and a log out button -->
+                {% if session['key'] %}
+                <!-- user exists -->
+                <b class="text-warning"> Welcome,{{ session['key'] }}</b>
+                <a href="/logout" class="btn btn-outline-warnimg">logout</a>
+                {% else %}
+                <!-- user does not exist -->
+                <a class="btn btn-outline-warning" href="/login">login</a>
+                <a class="btn btn-outline-warning" href="/register">register</a>
+                {% endif %}
+
             </form>
         </div>
     </div>
 </nav>
-<!-- Modal -->
-<div class="modal fade" id="exampleModal" tabindex="-1" aria-labelledby="exampleModalLabel" aria-hidden="true">
-    <div class="modal-dialog">
-        <div class="modal-content">
-            <div class="modal-header">
-                <h1 class="modal-title fs-5" id="exampleModalLabel">register</h1>
-                <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
-            </div>
-            <div class="modal-body">
-                <form action="/register" method="post">
-                    <label for="">username</label>
-                    <input type="text" class="form-control" name="username" required><br>
-                    <label for="email">Email</label>
-                    <input type="email" class="form-control" name="email" required><br>
-                    <label for="">gender</label>
-                    <select name="gender" class="form-control" required><br>
-                        <option value="male">Male</option>
-                        <option value="female">female</option><br>
-                        <label for="">Phone Number</label>
-                        <input type="tel" class="form-control" name="phone" required><br>
-                        <label for="">Password</label>
-                        <input type="password" class="form-control" name="password" required><br>
-                        <a href="/login">Already have an account? Click to login</a>
-
-                </form>
-
-
-
-
-            </div>
-            <div class="modal-footer">
-                <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Close</button>
-                <button type="button" class="btn btn-primary">Save changes</button>
-            </div>
-        </div>
-    </div>
-</div>
